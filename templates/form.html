@@ -1,0 +1,176 @@
+<!-- templates/form.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Planner</title>
+    <style>
+        /* Import a modern free-to-use Google font */
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap');
+
+        /* Reset default styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Set background gradient from dark green to light green */
+        body {
+            background: linear-gradient(to bottom, #064e3b, #d1fae5);
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+
+        /* Style for the form container */
+        .form-container {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        /* Heading styles */
+        h1 {
+            font-weight: bold;
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: #065f46;
+        }
+
+        /* Form styles */
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label {
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #065f46;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #065f46;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #065f46;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #047857;
+        }
+
+        /* Style for player position checkboxes on one line */
+        .checkbox-group {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .checkbox-group label {
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .player {
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .player label {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <h1>Game Planner</h1>
+        <form method="POST" action="/submit">
+            <label for="minutes">Number of minutes:</label>
+            <input type="number" id="minutes" name="minutes" required>
+
+            <label for="game_type">Type of game:</label>
+            <select id="game_type" name="game_type">
+                <option value="5_a_side">5-a-side</option>
+                <option value="7_a_side">7-a-side</option>
+                <option value="11_a_side">11-a-side</option>
+            </select>
+
+            <label for="players">Number of players available:</label>
+            <input type="number" id="players" name="players" required>
+
+            <label for="sub_time">Minimum substitution time (minutes):</label>
+            <input type="number" id="sub_time" name="sub_time" required>
+
+            <h2>Players</h2>
+            <div id="players-container">
+                <div class="player">
+                    <label for="player_name_1">Player 1 Name:</label>
+                    <input type="text" id="player_name_1" name="player_name_1">
+
+                    <label>Player 1 Positions:</label><br>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="positions_1" value="defense"> Defense</label>
+                        <label><input type="checkbox" name="positions_1" value="mid"> Mid</label>
+                        <label><input type="checkbox" name="positions_1" value="forward"> Forward</label>
+                        <label><input type="checkbox" name="positions_1" value="goal"> Goal</label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" onclick="addPlayer()">Add another player</button><br><br>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <script>
+        let playerCount = 1;
+        function addPlayer() {
+            playerCount++;
+            const playerContainer = document.getElementById("players-container");
+            const newPlayer = document.createElement("div");
+            newPlayer.classList.add("player");
+            newPlayer.innerHTML = `
+                <label for="player_name_${playerCount}">Player ${playerCount} Name:</label>
+                <input type="text" id="player_name_${playerCount}" name="player_name_${playerCount}">
+                
+                <label>Player ${playerCount} Positions:</label><br>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" name="positions_${playerCount}" value="defense"> Defense</label>
+                    <label><input type="checkbox" name="positions_${playerCount}" value="mid"> Mid</label>
+                    <label><input type="checkbox" name="positions_${playerCount}" value="forward"> Forward</label>
+                    <label><input type="checkbox" name="positions_${playerCount}" value="goal"> Goal</label>
+                </div>
+            `;
+            playerContainer.appendChild(newPlayer);
+        }
+    </script>
+
+</body>
+</html>
+
+
+
