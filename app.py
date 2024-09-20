@@ -2,6 +2,31 @@ from flask import Flask, render_template, request
 import random
 
 app = Flask(__name__)
+# In app.py or wherever your routes are defined
+
+# Add this function
+def calculate_sub_time(minutes, min_sub_time_input, num_players, num_goalkeepers):
+    # Calculate the ideal substitution time based on the number of outfield players (excluding goalkeepers)
+    outfield_players = num_players - num_goalkeepers
+
+    # If no input is given, calculate the ideal sub time
+    if not min_sub_time_input:
+        ideal_sub_time = minutes // outfield_players
+        return ideal_sub_time
+
+    # Convert inputted minimum sub time to an integer
+    min_sub_time = int(min_sub_time_input)
+
+    # Calculate the ideal substitution time
+    ideal_sub_time = minutes // outfield_players
+
+    # Use the greater of the inputted time and the ideal time
+    if min_sub_time < ideal_sub_time:
+        return ideal_sub_time
+    else:
+        return min_sub_time
+
+
 
 # Game plan generation function
 def generate_game_plan(minutes, sub_time, game_type, players_data):
@@ -145,43 +170,24 @@ def generate_game_plan(minutes, sub_time, game_type, players_data):
     return game_plan
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Route to display the form
 @app.route('/')
 def form():
     return render_template('form.html')
 
-# Route to handle form submission and display game plan
+# submit route
 @app.route('/submit', methods=['POST'])
 def submit():
     # Get form data
     minutes = int(request.form.get('minutes'))
     game_type = request.form.get('game_type')
     players = int(request.form.get('players'))
-    sub_time = int(request.form.get('sub_time'))
+
+    # Get the minimum sub time, which could be blank
+    min_sub_time_input = request.form.get('sub_time')
+
+    # Calculate the actual substitution time using the new logic
+    sub_time = calculate_sub_time(minutes, min_sub_time_input, players, num_goalkeepers=1)
 
     # Process player data with defaults
     player_data = []
