@@ -20,7 +20,6 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            text-align: center;
             color: #065f46;
             cursor: url('https://img.icons8.com/emoji/48/000000/soccer-ball-emoji.png'), auto;
         }
@@ -47,20 +46,19 @@
             font-size: 24px;
             color: #065f46;
             margin-top: 20px;
-            text-align: center;
         }
 
         form {
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: flex-start;
+            width: 100%;
         }
 
         label {
             font-weight: 500;
             margin-bottom: 5px;
             color: #065f46;
-            display: block;
         }
 
         input, select {
@@ -96,33 +94,30 @@
             background-color: #047857;
         }
 
+        /* Checkbox group styling */
         .checkbox-group {
             display: flex;
-            flex-direction: row;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 20px; /* Space between checkbox-label pairs */
             width: 100%;
-            padding: 5px 0;
+            margin-top: 10px;
         }
 
-        .checkbox-group label {
+        .checkbox-item {
             display: flex;
             align-items: center;
+            gap: 5px; /* Space between checkbox and label */
+        }
+
+        .checkbox-item input {
+            margin: 0;
+        }
+
+        .checkbox-item label {
             color: #556b2f;
             font-weight: 400;
             font-size: 15px;
-        }
-
-        .checkbox-group input {
-            margin-right: 8px;
-        }
-
-        /* Responsive adjustments for smaller screens */
-        @media (max-width: 600px) {
-            .checkbox-group {
-                flex-direction: column;
-                align-items: flex-start;
-            }
+            margin: 0;
         }
 
         .player {
@@ -183,10 +178,22 @@
 
                     <label>Player 1 Positions:</label>
                     <div class="checkbox-group">
-                        <label><input type="checkbox" name="positions_1" value="defense"> Defense</label>
-                        <label><input type="checkbox" name="positions_1" value="mid"> Mid</label>
-                        <label><input type="checkbox" name="positions_1" value="forward"> Forward</label>
-                        <label><input type="checkbox" name="positions_1" value="goal"> Goal</label>
+                        <div class="checkbox-item">
+                            <input type="checkbox" name="positions_1" value="defense">
+                            <label>Defense</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" name="positions_1" value="mid">
+                            <label>Mid</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" name="positions_1" value="forward">
+                            <label>Forward</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" name="positions_1" value="goal">
+                            <label>Goal</label>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -209,10 +216,22 @@
                 
                 <label>Player ${playerCount} Positions:</label>
                 <div class="checkbox-group">
-                    <label><input type="checkbox" name="positions_${playerCount}" value="defense"> Defense</label>
-                    <label><input type="checkbox" name="positions_${playerCount}" value="mid"> Mid</label>
-                    <label><input type="checkbox" name="positions_${playerCount}" value="forward"> Forward</label>
-                    <label><input type="checkbox" name="positions_${playerCount}" value="goal"> Goal</label>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="positions_${playerCount}" value="defense">
+                        <label>Defense</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="positions_${playerCount}" value="mid">
+                        <label>Mid</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="positions_${playerCount}" value="forward">
+                        <label>Forward</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="positions_${playerCount}" value="goal">
+                        <label>Goal</label>
+                    </div>
                 </div>
             `;
             playerContainer.appendChild(newPlayer);
@@ -221,6 +240,12 @@
 
 </body>
 </html>
+
+
+
+
+
+
 
 
 
