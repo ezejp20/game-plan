@@ -5,17 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Planner</title>
     <style>
-        /* Import Google font */
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap');
 
-        /* Reset default styles */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        /* Background gradient and font styling */
         body {
             background: linear-gradient(to bottom, #84fab0, #8fd3f4);
             font-family: 'Roboto', sans-serif;
@@ -28,7 +25,6 @@
             cursor: url('https://img.icons8.com/emoji/48/000000/soccer-ball-emoji.png'), auto;
         }
 
-        /* Form container styling */
         .form-container {
             background: rgba(255, 255, 255, 0.9);
             padding: 30px;
@@ -39,7 +35,6 @@
             text-align: left;
         }
 
-        /* Heading styles */
         h1 {
             font-weight: 500;
             font-size: 28px;
@@ -55,7 +50,6 @@
             text-align: center;
         }
 
-        /* Form styling */
         form {
             display: flex;
             flex-direction: column;
@@ -86,7 +80,6 @@
             background-color: #e6f7ee;
         }
 
-        /* Button styling */
         button {
             background-color: #065f46;
             color: white;
@@ -103,12 +96,11 @@
             background-color: #047857;
         }
 
-        /* Checkbox group styling */
         .checkbox-group {
             display: flex;
+            flex-direction: row;
             flex-wrap: wrap;
-            justify-content: space-between;
-            gap: 10px;
+            gap: 15px;
             width: 100%;
             padding: 5px 0;
         }
@@ -122,10 +114,17 @@
         }
 
         .checkbox-group input {
-            margin-right: 6px;
+            margin-right: 8px;
         }
 
-        /* Player section styling */
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 600px) {
+            .checkbox-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
         .player {
             border-top: 1px solid #ddd;
             padding-top: 15px;
@@ -137,7 +136,6 @@
             margin-top: 10px;
         }
 
-        /* Add another player button styling */
         .add-player-btn {
             background-color: #ff9800;
             color: white;
@@ -223,6 +221,7 @@
 
 </body>
 </html>
+
 
 
 
