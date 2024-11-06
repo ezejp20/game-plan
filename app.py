@@ -24,6 +24,8 @@ def generate_game_plan(minutes, sub_time, game_type, players_data):
     # Determine number of players on the field based on game type
     if game_type == "5_a_side":
         num_players_on_field = 5
+    elif game_type == "6_a_side":
+        num_players_on_field = 6
     elif game_type == "7_a_side":
         num_players_on_field = 7
     elif game_type == "11_a_side":
@@ -31,6 +33,7 @@ def generate_game_plan(minutes, sub_time, game_type, players_data):
 
     # Calculate number of segments based on game duration and substitution time
     num_segments = minutes // sub_time
+    segment_duration = minutes / num_segments 
     playtime_tracker = {player['name']: 0 for player in players_data}
     substitution_tracker = {player['name']: 0 for player in players_data}
     goal_time_tracker = {player['name']: 0 for player in players_data}
@@ -44,17 +47,13 @@ def generate_game_plan(minutes, sub_time, game_type, players_data):
 
     for player in players_data:
         if 'goal' in player['positions'] and len(player['positions']) == 1:
-            # Player only wants to play as goalkeeper
             dedicated_goalkeeper = player['name']
             break
         elif 'goal' in player['positions']:
-            # Player can play as goalkeeper and other positions
             flexible_goalkeepers.append(player)
         else:
-            # Player cannot play as goalkeeper
             non_goalkeepers.append(player)
 
-    # Function to prioritize players with less playtime
     def prioritize_by_playtime(players, position, assigned_players):
         return sorted(
             [player for player in players if position in player['positions'] and player['name'] not in assigned_players],
@@ -63,10 +62,12 @@ def generate_game_plan(minutes, sub_time, game_type, players_data):
 
     flexible_goalkeeper_index = 0
 
+    
     for segment in range(num_segments):
-        segment_end_time = (segment + 1) * sub_time
+        segment_start_time = round(segment * segment_duration)
+        segment_end_time = round((segment + 1) * segment_duration)
         segment_plan = {
-            'time': f'{segment * sub_time} - {segment_end_time} mins',
+            'time': f'{segment_start_time} - {segment_end_time} mins',
             'positions': {
                 'goal': None,
                 'defense': [],
@@ -76,53 +77,71 @@ def generate_game_plan(minutes, sub_time, game_type, players_data):
             'subs': []
         }
 
+
         assigned_players = set()
+        remaining_field_slots = num_players_on_field
 
         # Step 1: Assign the goalkeeper
         if dedicated_goalkeeper:
-            # Use the dedicated goalkeeper for the entire game
             segment_plan['positions']['goal'] = dedicated_goalkeeper
             assigned_players.add(dedicated_goalkeeper)
-            playtime_tracker[dedicated_goalkeeper] += sub_time
             goal_time_tracker[dedicated_goalkeeper] += 1
+            remaining_field_slots -= 1
         elif flexible_goalkeepers:
-            # Rotate flexible goalkeepers if there is no dedicated one
             current_goalkeeper = flexible_goalkeepers[flexible_goalkeeper_index % len(flexible_goalkeepers)]['name']
             segment_plan['positions']['goal'] = current_goalkeeper
             assigned_players.add(current_goalkeeper)
-            playtime_tracker[current_goalkeeper] += sub_time
             goal_time_tracker[current_goalkeeper] += 1
             flexible_goalkeeper_index += 1
+            remaining_field_slots -= 1
 
-        # Step 2: Prioritize players for defense, midfield, and forward based on playtime
+        # Step 2: Assign minimum players for each position based on playtime
         # Defense
-        defense_needed = 2
+        defense_needed = 1
         preferred_defenders = prioritize_by_playtime(players_data, 'defense', assigned_players)
         for player in preferred_defenders[:defense_needed]:
-            if player['name'] not in assigned_players:
-                segment_plan['positions']['defense'].append(player['name'])
-                assigned_players.add(player['name'])
-                playtime_tracker[player['name']] += sub_time
+            segment_plan['positions']['defense'].append(player['name'])
+            assigned_players.add(player['name'])
+            playtime_tracker[player['name']] += sub_time
+            remaining_field_slots -= 1
 
         # Midfield
         mid_needed = (num_players_on_field - 1 - len(segment_plan['positions']['defense'])) // 2
         preferred_midfielders = prioritize_by_playtime(players_data, 'mid', assigned_players)
         for player in preferred_midfielders[:mid_needed]:
-            if player['name'] not in assigned_players:
-                segment_plan['positions']['mid'].append(player['name'])
-                assigned_players.add(player['name'])
-                playtime_tracker[player['name']] += sub_time
+            segment_plan['positions']['mid'].append(player['name'])
+            assigned_players.add(player['name'])
+            playtime_tracker[player['name']] += sub_time
+            remaining_field_slots -= 1
 
         # Forward
         forward_needed = num_players_on_field - 1 - len(segment_plan['positions']['defense']) - len(segment_plan['positions']['mid'])
         preferred_forwards = prioritize_by_playtime(players_data, 'forward', assigned_players)
         for player in preferred_forwards[:forward_needed]:
-            if player['name'] not in assigned_players:
-                segment_plan['positions']['forward'].append(player['name'])
+            segment_plan['positions']['forward'].append(player['name'])
+            assigned_players.add(player['name'])
+            playtime_tracker[player['name']] += sub_time
+            remaining_field_slots -= 1
+
+        # NEW STEP: Assign additional players to available positions based on preferences if slots remain
+        if remaining_field_slots > 0:
+            remaining_players = [p for p in players_data if p['name'] not in assigned_players]
+            prioritized_remaining_players = sorted(remaining_players, key=lambda p: playtime_tracker[p['name']])
+
+            for player in prioritized_remaining_players:
+                if remaining_field_slots == 0:
+                    break
+                if 'defense' in player['positions'] and len(segment_plan['positions']['defense']) < 2:
+                    segment_plan['positions']['defense'].append(player['name'])
+                elif 'mid' in player['positions'] and len(segment_plan['positions']['mid']) < 3:
+                    segment_plan['positions']['mid'].append(player['name'])
+                elif 'forward' in player['positions'] and len(segment_plan['positions']['forward']) < 2:
+                    segment_plan['positions']['forward'].append(player['name'])
                 assigned_players.add(player['name'])
                 playtime_tracker[player['name']] += sub_time
+                remaining_field_slots -= 1
 
-        # Step 3: Assign remaining players to substitutes
+        # Step 4: Assign remaining players as substitutes if no field slots are left
         players_not_assigned = [p for p in players_data if p['name'] not in assigned_players]
         for player in players_not_assigned:
             segment_plan['subs'].append(player['name'])
@@ -131,7 +150,7 @@ def generate_game_plan(minutes, sub_time, game_type, players_data):
         game_plan.append(segment_plan)
 
     # Generate summary of time spent in goal, on field, and as substitutes
-        summary = {
+    summary = {
         player['name']: {
             'goal_segments': goal_time_tracker[player['name']],
             'sub_segments': substitution_tracker[player['name']],
@@ -144,22 +163,12 @@ def generate_game_plan(minutes, sub_time, game_type, players_data):
     return game_plan, summary
 
 
-
-
-
-
-
-
-
-
-
-# Route to display the form
+# Route to display the initial form
 @app.route('/')
 def form():
     return render_template('form.html')
 
-# Submit route
-
+# Route to submit the form and display the game plan
 @app.route('/submit', methods=['POST'])
 def submit():
     # Get form data
@@ -186,7 +195,30 @@ def submit():
     # Pass game_plan, summary, and sub_time to the template
     return render_template('game_plan.html', game_plan=game_plan, summary=summary, sub_time=sub_time)
 
+# Route to update the game plan after editing
+@app.route('/update_game_plan', methods=['POST'])
+def update_game_plan():
+    # Extract the updated team sheet data from the form
+    updated_data = request.form.to_dict()
+    
+    # Reconstruct `game_plan` based on the updated data
+    # Parse the data to update players' names and positions based on `updated_data`
+    # This could include parsing position changes and assigning them back to the `game_plan`
+
+    # You may need to re-process or recalculate parts of the game plan based on the changes.
+    
+    # After updating, render the updated game plan
+    return render_template('game_plan.html', game_plan=game_plan, summary=summary, sub_time=sub_time)
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)
+
+
+
+
+
+
+
+
 
