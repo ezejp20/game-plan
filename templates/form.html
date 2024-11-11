@@ -94,41 +94,23 @@
             background-color: #047857;
         }
 
-        /* Checkbox group styling */
-        .checkbox-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px; /* Space between checkbox-label pairs */
-            width: 100%;
-            margin-top: 10px;
+        /* Position button styling */
+        .position-button {
+            padding: 8px 16px;
+            margin: 5px;
+            border: 1px solid #065f46;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            background-color: #f0fdf4;
+            color: #065f46;
+            transition: background-color 0.3s ease;
         }
 
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-            gap: 5px; /* Space between checkbox and label */
-        }
-
-        .checkbox-item input {
-            margin: 0;
-        }
-
-        .checkbox-item label {
-            color: #556b2f;
-            font-weight: 400;
-            font-size: 15px;
-            margin: 0;
-        }
-
-        .player {
-            border-top: 1px solid #ddd;
-            padding-top: 15px;
-            margin-top: 15px;
-            width: 100%;
-        }
-
-        .player label {
-            margin-top: 10px;
+        .position-button.active {
+            background-color: #84fab0;
+            color: #065f46;
+            font-weight: bold;
         }
 
         .add-player-btn {
@@ -177,23 +159,11 @@
                     <input type="text" id="player_name_1" name="player_name_1">
 
                     <label>Player 1 Positions:</label>
-                    <div class="checkbox-group">
-                        <div class="checkbox-item">
-                            <input type="checkbox" name="positions_1" value="defense">
-                            <label>Defense</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" name="positions_1" value="mid">
-                            <label>Mid</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" name="positions_1" value="forward">
-                            <label>Forward</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" name="positions_1" value="goal">
-                            <label>Goal</label>
-                        </div>
+                    <div class="position-group">
+                        <button type="button" class="position-button" onclick="togglePosition(this, 'defense_1')">Defense</button>
+                        <button type="button" class="position-button" onclick="togglePosition(this, 'mid_1')">Mid</button>
+                        <button type="button" class="position-button" onclick="togglePosition(this, 'forward_1')">Forward</button>
+                        <button type="button" class="position-button" onclick="togglePosition(this, 'goal_1')">Goal</button>
                     </div>
                 </div>
             </div>
@@ -205,6 +175,22 @@
 
     <script>
         let playerCount = 1;
+
+        function togglePosition(button, position) {
+            button.classList.toggle("active");
+            const input = document.getElementById(position);
+            if (input) {
+                input.value = input.value === "true" ? "" : "true";
+            } else {
+                const hiddenInput = document.createElement("input");
+                hiddenInput.type = "hidden";
+                hiddenInput.id = position;
+                hiddenInput.name = position;
+                hiddenInput.value = "true";
+                button.parentNode.appendChild(hiddenInput);
+            }
+        }
+
         function addPlayer() {
             playerCount++;
             const playerContainer = document.getElementById("players-container");
@@ -215,23 +201,11 @@
                 <input type="text" id="player_name_${playerCount}" name="player_name_${playerCount}">
                 
                 <label>Player ${playerCount} Positions:</label>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="positions_${playerCount}" value="defense">
-                        <label>Defense</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="positions_${playerCount}" value="mid">
-                        <label>Mid</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="positions_${playerCount}" value="forward">
-                        <label>Forward</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="positions_${playerCount}" value="goal">
-                        <label>Goal</label>
-                    </div>
+                <div class="position-group">
+                    <button type="button" class="position-button" onclick="togglePosition(this, 'defense_${playerCount}')">Defense</button>
+                    <button type="button" class="position-button" onclick="togglePosition(this, 'mid_${playerCount}')">Mid</button>
+                    <button type="button" class="position-button" onclick="togglePosition(this, 'forward_${playerCount}')">Forward</button>
+                    <button type="button" class="position-button" onclick="togglePosition(this, 'goal_${playerCount}')">Goal</button>
                 </div>
             `;
             playerContainer.appendChild(newPlayer);
@@ -240,6 +214,7 @@
 
 </body>
 </html>
+
 
 
 
