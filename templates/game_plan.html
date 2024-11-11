@@ -144,7 +144,6 @@
                 <th>Mins in Goal</th>
                 <th>Mins Outfield</th>
                 <th>Mins Off</th>
-                <th>Mins Subbed</th>
                 <th>Mins Subbed + Goal</th>
             </tr>
             {% for player, details in summary.items() %}
@@ -153,7 +152,6 @@
                 <td>{{ details.goal_segments * sub_time }}</td>
                 <td>{{ details.field_segments * sub_time }}</td>
                 <td>{{ details.sub_segments * sub_time }}</td>
-                <td>{{ details.mins_subbed }}</td>
                 <td>{{ details.mins_subbed_goal }}</td>
             </tr>
             {% endfor %}

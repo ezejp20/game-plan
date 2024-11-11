@@ -7,10 +7,8 @@ app = Flask(__name__)
 def calculate_sub_time(minutes, min_sub_time_input, num_players, num_goalkeepers):
     outfield_players = num_players - num_goalkeepers
     if not min_sub_time_input:
-        # Calculate an optimal substitution time
-        possible_segment_lengths = [i for i in range(1, minutes + 1) if minutes % i == 0]
-        # Find the longest segment length that results in a reasonable number of rotations
-        ideal_sub_time = max(possible_segment_lengths, key=lambda x: minutes // x if minutes // x <= outfield_players else 0)
+        # Calculate a balanced sub time close to dividing playtime evenly among outfield players
+        ideal_sub_time = round(minutes / outfield_players, 1)  # Allow half-minute precision
         return ideal_sub_time
 
     min_sub_time = int(min_sub_time_input)
@@ -18,6 +16,10 @@ def calculate_sub_time(minutes, min_sub_time_input, num_players, num_goalkeepers
 
     # Return the greater of the user input and calculated ideal sub time
     return max(min_sub_time, ideal_sub_time)
+
+# Helper function to conditionally format time
+def format_time(time_value):
+    return f"{time_value:.1f}".rstrip('0').rstrip('.')  # Remove trailing zeros and decimal point if whole
 
 # Game plan generation function with goalie rotation
 def generate_game_plan(minutes, sub_time, game_type, players_data):
@@ -32,7 +34,7 @@ def generate_game_plan(minutes, sub_time, game_type, players_data):
         num_players_on_field = 11
 
     # Calculate number of segments based on game duration and substitution time
-    num_segments = minutes // sub_time
+    num_segments = int(minutes / sub_time)  # Convert to integer for use in loop
     segment_duration = minutes / num_segments
     playtime_tracker = {player['name']: 0 for player in players_data}
     substitution_tracker = {player['name']: 0 for player in players_data}
@@ -63,8 +65,8 @@ def generate_game_plan(minutes, sub_time, game_type, players_data):
     flexible_goalkeeper_index = 0
 
     for segment in range(num_segments):
-        segment_start_time = round(segment * segment_duration)
-        segment_end_time = round((segment + 1) * segment_duration)
+        segment_start_time = format_time(segment * segment_duration)
+        segment_end_time = format_time((segment + 1) * segment_duration)
         segment_plan = {
             'time': f'{segment_start_time} - {segment_end_time} mins',
             'positions': {
@@ -139,18 +141,16 @@ def generate_game_plan(minutes, sub_time, game_type, players_data):
 
     # Generate summary of time spent in goal, on field, and as substitutes
     summary = {
-    player['name']: {
-        'goal_segments': goal_time_tracker[player['name']],
-        'sub_segments': substitution_tracker[player['name']],
-        'field_segments': num_segments - substitution_tracker[player['name']] - goal_time_tracker[player['name']],
-        'mins_off': substitution_tracker[player['name']] * sub_time,
-        'mins_subbed_goal': (substitution_tracker[player['name']] + goal_time_tracker[player['name']]) * sub_time
-    } for player in players_data
-}
+        player['name']: {
+            'goal_segments': goal_time_tracker[player['name']],
+            'sub_segments': substitution_tracker[player['name']],
+            'field_segments': num_segments - substitution_tracker[player['name']] - goal_time_tracker[player['name']],
+            'mins_off': substitution_tracker[player['name']] * sub_time,
+            'mins_subbed_goal': (substitution_tracker[player['name']] + goal_time_tracker[player['name']]) * sub_time
+        } for player in players_data
+    }
 
     return game_plan, summary
-
-
 
 # Route to display the initial form
 @app.route('/')
@@ -199,9 +199,10 @@ def update_game_plan():
     # After updating, render the updated game plan
     return render_template('game_plan.html', game_plan=game_plan, summary=summary, sub_time=sub_time)
 
-
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)
+
+
 
 
 

@@ -5,14 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Planner</title>
     <style>
+        /* Styles for form and layout */
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap');
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: linear-gradient(to bottom, #84fab0, #8fd3f4);
             font-family: 'Roboto', sans-serif;
@@ -21,9 +16,7 @@
             align-items: center;
             min-height: 100vh;
             color: #065f46;
-            cursor: url('https://img.icons8.com/emoji/48/000000/soccer-ball-emoji.png'), auto;
         }
-
         .form-container {
             background: rgba(255, 255, 255, 0.9);
             padding: 30px;
@@ -31,36 +24,9 @@
             box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
             max-width: 600px;
             width: 100%;
-            text-align: left;
         }
-
-        h1 {
-            font-weight: 500;
-            font-size: 28px;
-            color: #065f46;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        h2 {
-            font-size: 24px;
-            color: #065f46;
-            margin-top: 20px;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            width: 100%;
-        }
-
-        label {
-            font-weight: 500;
-            margin-bottom: 5px;
-            color: #065f46;
-        }
-
+        h1, h2 { text-align: center; color: #065f46; }
+        label { margin-top: 10px; display: block; font-weight: 500; color: #065f46; }
         input, select {
             width: 100%;
             padding: 10px;
@@ -71,13 +37,6 @@
             background-color: #f0fdf4;
             color: #333;
         }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: #84fab0;
-            background-color: #e6f7ee;
-        }
-
         button {
             background-color: #065f46;
             color: white;
@@ -86,13 +45,9 @@
             border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
-            margin-top: 10px;
             transition: background-color 0.3s ease;
         }
-
-        button:hover {
-            background-color: #047857;
-        }
+        button:hover { background-color: #047857; }
 
         /* Position button styling */
         .position-button {
@@ -106,13 +61,12 @@
             color: #065f46;
             transition: background-color 0.3s ease;
         }
-
         .position-button.active {
             background-color: #84fab0;
-            color: #065f46;
             font-weight: bold;
         }
 
+        /* Add Player button styling */
         .add-player-btn {
             background-color: #ff9800;
             color: white;
@@ -120,13 +74,7 @@
             border-radius: 8px;
             font-size: 14px;
             cursor: pointer;
-            border: none;
             margin: 15px 0;
-            transition: background-color 0.3s ease;
-        }
-
-        .add-player-btn:hover {
-            background-color: #e68900;
         }
     </style>
 </head>
@@ -149,22 +97,29 @@
             <label for="players">Number of players available:</label>
             <input type="number" id="players" name="players" required>
 
-            <label for="sub_time">Minimum substitution time (minutes, optional):</label>
-            <input type="number" id="sub_time" name="sub_time">
+            <label for="min_sub_time">Minimum Sub Time (optional):</label>
+            <input type="number" id="min_sub_time" name="min_sub_time">
+
 
             <h2>Players</h2>
             <div id="players-container">
+                <!-- First player as an example -->
                 <div class="player">
                     <label for="player_name_1">Player 1 Name:</label>
                     <input type="text" id="player_name_1" name="player_name_1">
 
                     <label>Player 1 Positions:</label>
                     <div class="position-group">
-                        <button type="button" class="position-button" onclick="togglePosition(this, 'defense_1')">Defense</button>
-                        <button type="button" class="position-button" onclick="togglePosition(this, 'mid_1')">Mid</button>
-                        <button type="button" class="position-button" onclick="togglePosition(this, 'forward_1')">Forward</button>
-                        <button type="button" class="position-button" onclick="togglePosition(this, 'goal_1')">Goal</button>
+                        <button type="button" class="position-button" onclick="togglePosition(this, 'positions_1', 'defense')">Defense</button>
+                        <button type="button" class="position-button" onclick="togglePosition(this, 'positions_1', 'mid')">Mid</button>
+                        <button type="button" class="position-button" onclick="togglePosition(this, 'positions_1', 'forward')">Forward</button>
+                        <button type="button" class="position-button" onclick="togglePosition(this, 'positions_1', 'goal')">Goal</button>
                     </div>
+                    <!-- Hidden inputs to store selected positions -->
+                    <input type="hidden" id="positions_1_defense" name="positions_1" value="">
+                    <input type="hidden" id="positions_1_mid" name="positions_1" value="">
+                    <input type="hidden" id="positions_1_forward" name="positions_1" value="">
+                    <input type="hidden" id="positions_1_goal" name="positions_1" value="">
                 </div>
             </div>
 
@@ -176,19 +131,10 @@
     <script>
         let playerCount = 1;
 
-        function togglePosition(button, position) {
+        function togglePosition(button, playerPrefix, position) {
             button.classList.toggle("active");
-            const input = document.getElementById(position);
-            if (input) {
-                input.value = input.value === "true" ? "" : "true";
-            } else {
-                const hiddenInput = document.createElement("input");
-                hiddenInput.type = "hidden";
-                hiddenInput.id = position;
-                hiddenInput.name = position;
-                hiddenInput.value = "true";
-                button.parentNode.appendChild(hiddenInput);
-            }
+            const input = document.getElementById(`${playerPrefix}_${position}`);
+            input.value = input.value ? "" : position;
         }
 
         function addPlayer() {
@@ -202,11 +148,15 @@
                 
                 <label>Player ${playerCount} Positions:</label>
                 <div class="position-group">
-                    <button type="button" class="position-button" onclick="togglePosition(this, 'defense_${playerCount}')">Defense</button>
-                    <button type="button" class="position-button" onclick="togglePosition(this, 'mid_${playerCount}')">Mid</button>
-                    <button type="button" class="position-button" onclick="togglePosition(this, 'forward_${playerCount}')">Forward</button>
-                    <button type="button" class="position-button" onclick="togglePosition(this, 'goal_${playerCount}')">Goal</button>
+                    <button type="button" class="position-button" onclick="togglePosition(this, 'positions_${playerCount}', 'defense')">Defense</button>
+                    <button type="button" class="position-button" onclick="togglePosition(this, 'positions_${playerCount}', 'mid')">Mid</button>
+                    <button type="button" class="position-button" onclick="togglePosition(this, 'positions_${playerCount}', 'forward')">Forward</button>
+                    <button type="button" class="position-button" onclick="togglePosition(this, 'positions_${playerCount}', 'goal')">Goal</button>
                 </div>
+                <input type="hidden" id="positions_${playerCount}_defense" name="positions_${playerCount}" value="">
+                <input type="hidden" id="positions_${playerCount}_mid" name="positions_${playerCount}" value="">
+                <input type="hidden" id="positions_${playerCount}_forward" name="positions_${playerCount}" value="">
+                <input type="hidden" id="positions_${playerCount}_goal" name="positions_${playerCount}" value="">
             `;
             playerContainer.appendChild(newPlayer);
         }
@@ -214,6 +164,7 @@
 
 </body>
 </html>
+
 
 
 
